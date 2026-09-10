@@ -1,0 +1,432 @@
+{
+  "classInfo": {
+    "name": "Socials 3r A",
+    "course": "2025-2026",
+    "teacher": "Marta Roig",
+    "school": "Institut Montserrat"
+  },
+  "students": [
+    {
+      "id": "id-3c1cdo9m",
+      "name": "Anna Puig"
+    },
+    {
+      "id": "id-cnzb4kha",
+      "name": "Bernat Solé"
+    },
+    {
+      "id": "id-x5mmagbt",
+      "name": "Carla Vidal"
+    },
+    {
+      "id": "id-tx70g0xs",
+      "name": "Dídac Roca"
+    },
+    {
+      "id": "id-1mwgxtyr",
+      "name": "Elena Ferrer"
+    },
+    {
+      "id": "id-gmym1ub9",
+      "name": "Ferran Costa"
+    }
+  ],
+  "categories": {
+    "1": [
+      {
+        "id": "id-ygdj76t5",
+        "name": "Examen 1",
+        "weight": "60",
+        "noCompute": false
+      },
+      {
+        "id": "id-krfbqvnl",
+        "name": "Treball climes",
+        "weight": "20",
+        "noCompute": false
+      },
+      {
+        "id": "id-ambow1qk",
+        "name": "Fitxa coordenades",
+        "weight": "12",
+        "noCompute": false
+      },
+      {
+        "id": "id-kncjmr91",
+        "name": "Apunts",
+        "weight": "8",
+        "noCompute": true
+      }
+    ],
+    "2": [
+      {
+        "id": "id-r0gj39uu",
+        "name": "Examen 2",
+        "weight": "50",
+        "noCompute": false
+      },
+      {
+        "id": "id-mjj9mt3f",
+        "name": "Projecte comarques",
+        "weight": "30",
+        "noCompute": false
+      },
+      {
+        "id": "id-zjmxsyh6",
+        "name": "Fitxa mapa",
+        "weight": "20",
+        "noCompute": false
+      }
+    ],
+    "3": [
+      {
+        "id": "id-kp53k1tv",
+        "name": "Examen 3",
+        "weight": "55",
+        "noCompute": false
+      },
+      {
+        "id": "id-uopdbj20",
+        "name": "Treball fast fashion",
+        "weight": "25",
+        "noCompute": false
+      },
+      {
+        "id": "id-ax5twdym",
+        "name": "Actitud",
+        "weight": "12",
+        "noCompute": false
+      },
+      {
+        "id": "id-5q0f2ytd",
+        "name": "Apunts",
+        "weight": "8",
+        "noCompute": true
+      }
+    ]
+  },
+  "grades": {
+    "1": {
+      "id-3c1cdo9m": {
+        "id-ygdj76t5": {
+          "value": "8.2",
+          "np": false
+        },
+        "id-krfbqvnl": {
+          "value": "7.5",
+          "np": false
+        },
+        "id-ambow1qk": {
+          "value": "9",
+          "np": false
+        },
+        "id-kncjmr91": {
+          "value": "8",
+          "np": false
+        }
+      },
+      "id-cnzb4kha": {
+        "id-ygdj76t5": {
+          "value": "4.5",
+          "np": false
+        },
+        "id-krfbqvnl": {
+          "value": "5",
+          "np": false
+        },
+        "id-ambow1qk": {
+          "value": "6",
+          "np": false
+        },
+        "id-kncjmr91": {
+          "value": "7",
+          "np": false
+        }
+      },
+      "id-x5mmagbt": {
+        "id-ygdj76t5": {
+          "value": "6.8",
+          "np": false
+        },
+        "id-krfbqvnl": {
+          "value": "7",
+          "np": false
+        },
+        "id-ambow1qk": {
+          "value": "7.5",
+          "np": false
+        },
+        "id-kncjmr91": {
+          "value": "9",
+          "np": false
+        }
+      },
+      "id-tx70g0xs": {
+        "id-ygdj76t5": {
+          "value": "",
+          "np": true
+        },
+        "id-krfbqvnl": {
+          "value": "",
+          "np": true
+        },
+        "id-ambow1qk": {
+          "value": "",
+          "np": true
+        },
+        "id-kncjmr91": {
+          "value": "",
+          "np": true
+        }
+      },
+      "id-1mwgxtyr": {
+        "id-ygdj76t5": {
+          "value": "9.2",
+          "np": false
+        },
+        "id-krfbqvnl": {
+          "value": "9",
+          "np": false
+        },
+        "id-ambow1qk": {
+          "value": "8.5",
+          "np": false
+        },
+        "id-kncjmr91": {
+          "value": "10",
+          "np": false
+        }
+      },
+      "id-gmym1ub9": {
+        "id-ygdj76t5": {
+          "value": "5.5",
+          "np": false
+        },
+        "id-krfbqvnl": {
+          "value": "6",
+          "np": false
+        },
+        "id-ambow1qk": {
+          "value": "5",
+          "np": false
+        },
+        "id-kncjmr91": {
+          "value": "6",
+          "np": false
+        }
+      }
+    },
+    "2": {
+      "id-3c1cdo9m": {
+        "id-r0gj39uu": {
+          "value": "7.8",
+          "np": false
+        },
+        "id-mjj9mt3f": {
+          "value": "8",
+          "np": false
+        },
+        "id-zjmxsyh6": {
+          "value": "8.5",
+          "np": false
+        }
+      },
+      "id-cnzb4kha": {
+        "id-r0gj39uu": {
+          "value": "5.2",
+          "np": false
+        },
+        "id-mjj9mt3f": {
+          "value": "5.5",
+          "np": false
+        },
+        "id-zjmxsyh6": {
+          "value": "6",
+          "np": false
+        }
+      },
+      "id-x5mmagbt": {
+        "id-r0gj39uu": {
+          "value": "7.1",
+          "np": false
+        },
+        "id-mjj9mt3f": {
+          "value": "7.5",
+          "np": false
+        },
+        "id-zjmxsyh6": {
+          "value": "7",
+          "np": false
+        }
+      },
+      "id-tx70g0xs": {
+        "id-r0gj39uu": {
+          "value": "6.5",
+          "np": false
+        },
+        "id-mjj9mt3f": {
+          "value": "6",
+          "np": false
+        },
+        "id-zjmxsyh6": {
+          "value": "7",
+          "np": false
+        }
+      },
+      "id-1mwgxtyr": {
+        "id-r0gj39uu": {
+          "value": "9.5",
+          "np": false
+        },
+        "id-mjj9mt3f": {
+          "value": "9",
+          "np": false
+        },
+        "id-zjmxsyh6": {
+          "value": "9.5",
+          "np": false
+        }
+      },
+      "id-gmym1ub9": {
+        "id-r0gj39uu": {
+          "value": "6.2",
+          "np": false
+        },
+        "id-mjj9mt3f": {
+          "value": "6.5",
+          "np": false
+        },
+        "id-zjmxsyh6": {
+          "value": "6",
+          "np": false
+        }
+      }
+    },
+    "3": {
+      "id-3c1cdo9m": {
+        "id-kp53k1tv": {
+          "value": "8.9",
+          "np": false
+        },
+        "id-uopdbj20": {
+          "value": "8.5",
+          "np": false
+        },
+        "id-ax5twdym": {
+          "value": "9",
+          "np": false
+        },
+        "id-5q0f2ytd": {
+          "value": "7",
+          "np": false
+        }
+      },
+      "id-cnzb4kha": {
+        "id-kp53k1tv": {
+          "value": "5.8",
+          "np": false
+        },
+        "id-uopdbj20": {
+          "value": "6",
+          "np": false
+        },
+        "id-ax5twdym": {
+          "value": "7",
+          "np": false
+        },
+        "id-5q0f2ytd": {
+          "value": "6",
+          "np": false
+        }
+      },
+      "id-x5mmagbt": {
+        "id-kp53k1tv": {
+          "value": "7.4",
+          "np": false
+        },
+        "id-uopdbj20": {
+          "value": "7",
+          "np": false
+        },
+        "id-ax5twdym": {
+          "value": "8",
+          "np": false
+        },
+        "id-5q0f2ytd": {
+          "value": "8",
+          "np": false
+        }
+      },
+      "id-tx70g0xs": {
+        "id-kp53k1tv": {
+          "value": "6.9",
+          "np": false
+        },
+        "id-uopdbj20": {
+          "value": "7",
+          "np": false
+        },
+        "id-ax5twdym": {
+          "value": "7",
+          "np": false
+        },
+        "id-5q0f2ytd": {
+          "value": "7",
+          "np": false
+        }
+      },
+      "id-1mwgxtyr": {
+        "id-kp53k1tv": {
+          "value": "9.7",
+          "np": false
+        },
+        "id-uopdbj20": {
+          "value": "10",
+          "np": false
+        },
+        "id-ax5twdym": {
+          "value": "9",
+          "np": false
+        },
+        "id-5q0f2ytd": {
+          "value": "9",
+          "np": false
+        }
+      },
+      "id-gmym1ub9": {
+        "id-kp53k1tv": {
+          "value": "6.6",
+          "np": false
+        },
+        "id-uopdbj20": {
+          "value": "6",
+          "np": false
+        },
+        "id-ax5twdym": {
+          "value": "7",
+          "np": false
+        },
+        "id-5q0f2ytd": {
+          "value": "6",
+          "np": false
+        }
+      }
+    }
+  },
+  "observations": {
+    "1": {
+      "id-tx70g0xs": "Absent tot el trimestre per motius mèdics"
+    },
+    "2": {},
+    "3": {
+      "id-1mwgxtyr": "Molt bon treball, participativa a classe"
+    }
+  },
+  "finalWeights": {
+    "1": 30,
+    "2": 30,
+    "3": 40
+  },
+  "_appVersion": "0.4",
+  "_savedAt": "2026-09-10T16:45:06.626Z"
+}
