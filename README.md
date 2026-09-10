@@ -12,7 +12,7 @@ desades localment al seu ordinador.
 
 Link a l'aplicació: <https://albert-ka.github.io/Quadern-de-notes-digital/>
 
-📖 Guia d'ús completa (PDF): [quadern_notes_guia.pdf](https://github.com/albert-ka/Quadern-de-notes-digital/blob/main/quadern_notes_guia.pdf)
+📖 Guia d'ús completa (PDF): [quadern_notes_guia.pdf](https://github.com/albert-ka/Quadern-de-notes-digital/blob/main/quadern_notes_guia0.7.pdf)
 
 ## Funcionalitats
 
