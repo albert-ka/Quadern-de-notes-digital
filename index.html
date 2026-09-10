@@ -205,7 +205,7 @@ const LEVELS = [
 ];
 const TRIM_LABEL = { 1: '1r Trimestre', 2: '2n Trimestre', 3: '3r Trimestre' };
 const TRIM_ABBR = { 1: '1T', 2: '2T', 3: '3T' };
-const APP_VERSION = '0.6';
+const APP_VERSION = '0.7';
 
 function defaultState() {
   return {
@@ -957,18 +957,35 @@ function newClass() {
 }
 
 // ---- Exportació a Excel ----
+function colLetter(n) { // n és l'índex de columna (0 = A, 1 = B...)
+  let s = '';
+  n += 1;
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    s = String.fromCharCode(65 + rem) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
+}
+// Bloc d'informació SEMPRE de 5 files (encara que professor/centre estiguin buits),
+// perquè la fila de pesos, la capçalera i les files d'alumnes quedin a un número de
+// fila fix i previsible, independentment de quantes categories tingui el trimestre.
 function excelInfoRows() {
-  const rows = [['Classe', state.classInfo.name || ''], ['Curs', state.classInfo.course || '']];
-  if (state.classInfo.teacher) rows.push(['Professor/a', state.classInfo.teacher]);
-  if (state.classInfo.school) rows.push(['Centre', state.classInfo.school]);
-  rows.push([]);
-  return rows;
+  return [
+    ['Classe', state.classInfo.name || ''],
+    ['Curs', state.classInfo.course || ''],
+    ['Professor/a', state.classInfo.teacher || ''],
+    ['Centre', state.classInfo.school || ''],
+    [],
+  ];
 }
 function buildTrimSheetData(trim) {
   const cats = state.categories[trim] || [];
-  const rows = excelInfoRows();
+  const rows = excelInfoRows(); // files 1-5 (índexs 0-4)
+  const weightsRow = ['Pes', ...cats.map((c) => (c.noCompute ? 0 : (Number(c.weight) || 0)))];
+  rows.push(weightsRow); // fila 6 (índex 5)
   const header = ['Alumne', ...cats.map((c) => c.name + (c.noCompute ? ' (no computa)' : ` (${c.weight}%)`)), 'Nota', 'Nivell', 'Observacions'];
-  rows.push(header);
+  rows.push(header); // fila 7 (índex 6)
   state.students.forEach((st) => {
     const g = trimGrade(trim, st.id);
     const catVals = cats.map((c) => {
@@ -978,12 +995,38 @@ function buildTrimSheetData(trim) {
       return '';
     });
     rows.push([st.name, ...catVals, g === null ? '' : Number(g.toFixed(2)), getLevel(g) || '', state.observations[trim][st.id] || '']);
-  });
-  return rows;
+  }); // files 8+ (índexs 7+)
+  return { rows, catCount: cats.length };
+}
+// Afegeix les fórmules reals de "Nota" i "Nivell" a un full ja creat, mantenint el
+// valor ja calculat com a valor en caché (es veurà bé encara que l'Excel no hagi
+// recalculat). El "NP" es manté com a text visible; SUMPRODUCT+IFERROR el tracta
+// com un 0 sense that peti la fórmula (el mateix problema que vam trobar i arreglar
+// al full original del professor, ara evitat des del disseny).
+function addTrimFormulas(ws, catCount, studentCount) {
+  if (catCount === 0) return; // sense categories, "Nota"/"Nivell" es queden en blanc (ja ho són)
+  const notaCol = 1 + catCount;
+  const nivellCol = notaCol + 1;
+  const wRange = `$${colLetter(1)}$6:$${colLetter(catCount)}$6`;
+  for (let i = 0; i < studentCount; i++) {
+    const r = 8 + i; // fila d'aquest alumne (1-indexada)
+    const gradeRange = `${colLetter(1)}${r}:${colLetter(catCount)}${r}`;
+    const notaAddr = `${colLetter(notaCol)}${r}`;
+    const nivellAddr = `${colLetter(nivellCol)}${r}`;
+    const notaCell = ws[notaAddr] || { t: 'n' };
+    notaCell.f = `IF(SUMPRODUCT(LEN(${gradeRange}&""))=0,"",IF(SUM(${wRange})=0,"",SUMPRODUCT(IFERROR(${gradeRange}*${wRange},0))/SUM(${wRange})))`;
+    notaCell.z = '0.00';
+    ws[notaAddr] = notaCell;
+    const nivellCell = ws[nivellAddr] || { t: 'str' };
+    nivellCell.f = `IF(${notaAddr}="","",IF(ROUND(${notaAddr},0)>=9,"AE",IF(ROUND(${notaAddr},0)>=7,"AN",IF(ROUND(${notaAddr},0)>=5,"AS","NA"))))`;
+    ws[nivellAddr] = nivellCell;
+  }
 }
 function buildFinalSheetData() {
-  const rows = excelInfoRows();
-  rows.push(['Alumne', `1r trim. (${state.finalWeights[1]}%)`, `2n trim. (${state.finalWeights[2]}%)`, `3r trim. (${state.finalWeights[3]}%)`, 'Nota final', 'Nivell']);
+  const rows = excelInfoRows(); // files 1-5 (índexs 0-4)
+  const weightsRow = ['Pes', Number(state.finalWeights[1]) || 0, Number(state.finalWeights[2]) || 0, Number(state.finalWeights[3]) || 0];
+  rows.push(weightsRow); // fila 6 (índex 5)
+  rows.push(['Alumne', `1r trim. (${state.finalWeights[1]}%)`, `2n trim. (${state.finalWeights[2]}%)`, `3r trim. (${state.finalWeights[3]}%)`, 'Nota final', 'Nivell']); // fila 7 (índex 6)
   state.students.forEach((st) => {
     const g1 = trimGrade(1, st.id), g2 = trimGrade(2, st.id), g3 = trimGrade(3, st.id), gf = finalGrade(st.id);
     rows.push([
@@ -994,8 +1037,37 @@ function buildFinalSheetData() {
       gf === null ? '' : Number(gf.toFixed(2)),
       getLevel(gf) || '',
     ]);
-  });
+  }); // files 8+ (índexs 7+)
   return rows;
+}
+// Fórmules del full "Nota Final": cada trimestre és un enllaç directe a la "Nota" del
+// full corresponent (mateixa fila que a cada full de trimestre); la nota final és la
+// mitjana ponderada d'aquests tres valors amb el mateix patró SUMPRODUCT+IFERROR.
+function addFinalFormulas(ws, studentCount, notaColByTrim) {
+  const wRange = '$B$6:$D$6';
+  for (let i = 0; i < studentCount; i++) {
+    const r = 8 + i;
+    [1, 2, 3].forEach((t) => {
+      const col = colLetter(t); // B, C, D
+      const addr = `${col}${r}`;
+      const cell = ws[addr] || { t: 'n' };
+      if (notaColByTrim[t] === null) {
+        cell.f = '""'; // sense categories aquell trimestre: deixa-ho en blanc
+      } else {
+        cell.f = `'${TRIM_LABEL[t]}'!${colLetter(notaColByTrim[t])}${r}`;
+      }
+      cell.z = '0.00';
+      ws[addr] = cell;
+    });
+    const notaAddr = `E${r}`, nivellAddr = `F${r}`;
+    const notaCell = ws[notaAddr] || { t: 'n' };
+    notaCell.f = `IF(SUMPRODUCT(LEN(B${r}:D${r}&""))=0,"",SUMPRODUCT(IFERROR(B${r}:D${r}*${wRange},0))/SUM(${wRange}))`;
+    notaCell.z = '0.00';
+    ws[notaAddr] = notaCell;
+    const nivellCell = ws[nivellAddr] || { t: 'str' };
+    nivellCell.f = `IF(${notaAddr}="","",IF(ROUND(${notaAddr},0)>=9,"AE",IF(ROUND(${notaAddr},0)>=7,"AN",IF(ROUND(${notaAddr},0)>=5,"AS","NA"))))`;
+    ws[nivellAddr] = nivellCell;
+  }
 }
 function exportExcel() {
   if (typeof XLSX === 'undefined') {
@@ -1003,11 +1075,16 @@ function exportExcel() {
     return;
   }
   const wb = XLSX.utils.book_new();
+  const notaColByTrim = {};
   [1, 2, 3].forEach((t) => {
-    const ws = XLSX.utils.aoa_to_sheet(buildTrimSheetData(t));
+    const { rows, catCount } = buildTrimSheetData(t);
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    addTrimFormulas(ws, catCount, state.students.length);
+    notaColByTrim[t] = catCount === 0 ? null : 1 + catCount;
     XLSX.utils.book_append_sheet(wb, ws, TRIM_LABEL[t]);
   });
   const wsFinal = XLSX.utils.aoa_to_sheet(buildFinalSheetData());
+  addFinalFormulas(wsFinal, state.students.length, notaColByTrim);
   XLSX.utils.book_append_sheet(wb, wsFinal, 'Nota Final');
   XLSX.writeFile(wb, sanitizeFilename(state.classInfo.name) + '-notes.xlsx');
 }
