@@ -10,7 +10,9 @@ Funciona íntegrament al navegador — **no hi ha cap servidor ni base de
 dades**. Cada persona que hi entra treballa amb les seves pròpies classes,
 desades localment al seu ordinador.
 
-Link a l'aplicació: https://albert-ka.github.io/Quadern-de-notes-digital/
+Link a l'aplicació: <https://albert-ka.github.io/Quadern-de-notes-digital/>
+
+📖 Guia d'ús completa (PDF): [quadern_notes_guia.pdf](https://github.com/albert-ka/Quadern-de-notes-digital/blob/main/quadern_notes_guia.pdf)
 
 ## Funcionalitats
 
@@ -33,17 +35,21 @@ Link a l'aplicació: https://albert-ka.github.io/Quadern-de-notes-digital/
 
 ## Com fer-la servir
 
+Per a instruccions detallades pas a pas, amb captures de pantalla, consulta la
+[guia d'ús en PDF](https://github.com/albert-ka/Quadern-de-notes-digital/blob/main/quadern_notes_guia.pdf).
+Resum ràpid:
+
 1. **Classe**: posa el nom, el curs, el professor/a i el centre.
 2. **Alumnes**: dona'ls d'alta un per un.
 3. **1r / 2n / 3r Trimestre**: per a cada trimestre, defineix les categories i
    el seu pes. Per exemple:
 
-   | Categoria      | Pes  |
-   |----------------|------|
-   | Examen 1       | 60%  |
-   | Treball        | 20%  |
-   | Fitxa de classe| 12%  |
-   | Apunts         | *no computa* |
+   | Categoria       | Pes          |
+   | --------------- | ------------ |
+   | Examen 1        | 60%          |
+   | Treball         | 20%          |
+   | Fitxa de classe | 12%          |
+   | Apunts          | *no computa* |
 
    Introdueix les notes de cada alumne a la taula; la nota i el nivell
    (AE/AN/AS/NA) es calculen sols. Marca "NP" si un alumne no ha presentat
@@ -54,14 +60,14 @@ Link a l'aplicació: https://albert-ka.github.io/Quadern-de-notes-digital/
    final pot variar quan l'acabis d'omplir.
 5. **Exportar**: des de cada trimestre pots treure un PDF; des de "Nota
    final" pots exportar el PDF de notes finals, un **resum complet** (tots
-   els trimestres en una taula), o tota la informació en un **Excel**. El Excel
-   es compatible amb Google Drive i té totes les fòrmules integrades, així que es
-   pot utilitzar com a còpia de seguretat. Alternativament l'aplicació es pot
-   utilitzar per només generar els Excels.
+   els trimestres en una taula), o tota la informació en un **Excel**. L'Excel
+   és compatible amb Google Drive i té totes les fórmules integrades, així que
+   es pot utilitzar com a còpia de seguretat. Alternativament, l'aplicació es
+   pot utilitzar només per generar els Excels.
 
 ### Exemple
 
-A la carpeta [`examples/`](examples/) hi ha tres classes de mostra, amb noms i
+A la carpeta [`examples/`](https://github.com/albert-ka/Quadern-de-notes-digital/blob/main/examples) hi ha tres classes de mostra, amb noms i
 notes inventades, llestes per obrir directament amb "📂 Obrir una classe":
 
 - **`socials-3r-a-notes.json`** — classe completa amb els 3 trimestres
@@ -73,7 +79,9 @@ notes inventades, llestes per obrir directament amb "📂 Obrir una classe":
 
 ## Instal·lar-la com a aplicació (només Google Chrome)
 
-Amb la pàgina oberta a Chrome, ves al menú de tres punts (a dalt a la dreta) → Emet, desa i comparteix → Instal·la la pàgina com a aplicació... a partir d'ara pots guardar la icona de l'aplicaicó a la barra d'eines de Windows/Mac.
+Amb la pàgina oberta a Chrome, ves al menú de tres punts (a dalt a la dreta) →
+Emet, desa i comparteix → Instal·la la pàgina com a aplicació... A partir
+d'ara pots guardar la icona de l'aplicació a la barra d'eines de Windows/Mac.
 
 ## Important: les dades no es comparteixen
 
@@ -93,4 +101,4 @@ publicar-les oficialment.
 ## Llicència
 
 Distribuïda sota la llicència MIT — lliure d'ús, còpia, modificació i
-distribució. Vegeu [LICENSE](LICENSE).
+distribució. Vegeu [LICENSE](https://github.com/albert-ka/Quadern-de-notes-digital/blob/main/LICENSE).
