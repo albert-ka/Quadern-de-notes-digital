@@ -5,10 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quadern de notes</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#2F6B57">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -403,6 +399,7 @@ function sidebarHTML() {
       <div id="save-indicator" class="save-indicator ${unsavedChanges ? 'dirty' : 'ok'}">${unsavedChanges ? '● Tens canvis sense desar' : '✓ Sense canvis pendents'}</div>
       <div class="file-controls">
         <button class="btn-ghost" onclick="saveClassToFile()">💾 Desa la classe</button>
+        <button class="btn-ghost" onclick="saveClassAs()" title="Desa una còpia amb un altre nom, útil per reutilitzar la mateixa configuració en un curs nou">📑 Desar com...</button>
         <button class="btn-ghost" onclick="openClassFromFile()">📂 Obrir una classe</button>
         <button class="btn-ghost" onclick="openClassesFolder()">🗂️ Obrir una carpeta</button>
         <button class="btn-ghost" onclick="newClass()">✚ Classe nova</button>
@@ -815,6 +812,35 @@ async function saveClassToFile() {
   }
 }
 
+// "Desar com...": sempre demana una ubicació/nom nou (útil per reutilitzar la
+// mateixa configuració -categories, pesos...- en un curs nou). No modifica
+// cap dada: alumnes, notes i observacions es mantenen intactes; és feina del
+// professor/a esborrar els alumnes manualment després, si cal.
+async function saveClassAs() {
+  const savedAt = new Date().toISOString();
+  const exportData = Object.assign({}, state, { _appVersion: APP_VERSION, _savedAt: savedAt });
+  const jsonString = JSON.stringify(exportData, null, 2);
+  const filename = sanitizeFilename(state.classInfo.name) + '-notes.json';
+
+  try {
+    if (!supportsFSA()) throw new Error('fsa-not-supported');
+    const handle = await window.showSaveFilePicker({
+      suggestedName: filename,
+      types: [{ description: 'Quadern de notes', accept: { 'application/json': ['.json'] } }],
+    });
+    const writable = await handle.createWritable();
+    await writable.write(jsonString);
+    await writable.close();
+    currentFileHandle = handle; // a partir d'ara, "Desa la classe" sobreescriu aquest fitxer nou
+    if (classesFolderHandle) await refreshRecentClasses(); // per si l'ha desat dins la carpeta oberta
+    finishSaveBookkeeping(savedAt);
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    downloadFileClassic(jsonString, filename); // reserva: baixada clàssica amb el nom suggerit
+    finishSaveBookkeeping(savedAt);
+  }
+}
+
 async function openClassFromFile() {
   if (supportsFSA()) {
     try {
@@ -1076,12 +1102,6 @@ window.addEventListener('beforeunload', function (e) {
     }
   } catch (e) { /* IndexedDB no disponible o buida: cap problema, es continua sense carpeta */ }
 })();
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => { /* no crític si falla */ });
-  });
-}
 </script>
 </body>
 </html>
