@@ -10,6 +10,8 @@ Funciona íntegrament al navegador — **no hi ha cap servidor ni base de
 dades**. Cada persona que hi entra treballa amb les seves pròpies classes,
 desades localment al seu ordinador.
 
+Link a l'aplicació: https://albert-ka.github.io/Quadern-de-notes-digital/
+
 ## Funcionalitats
 
 - Alumnes i categories il·limitats, configurables trimestre a trimestre (noms
