@@ -68,10 +68,9 @@ notes inventades, llestes per obrir directament amb "📂 Obrir una classe":
 - **`naturals-2n-c-notes.json`** — alumnes donats d'alta però sense cap
   categoria ni nota; per començar a provar-ho des de zero.
 
-## Instal·lar-la com a aplicació (Chrome)
+## Instal·lar-la com a aplicació (només Google Chrome)
 
-**Ordinador**: amb la pàgina oberta, cerca la icona d'instal·lar a la barra
-d'adreces, o menú de tres punts → "Instal·la Quadern de Notes...".
+Amb la pàgina oberta a Chrome, ves al menú de tres punts (a dalt a la dreta) → Emet, desa i comparteix → Instal·la la pàgina com a aplicació... a partir d'ara pots guardar la icona de l'aplicaicó a la barra d'eines de Windows/Mac.
 
 ## Important: les dades no es comparteixen
 
