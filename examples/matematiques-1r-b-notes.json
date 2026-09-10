@@ -1,0 +1,142 @@
+{
+  "classInfo": {
+    "name": "Matemàtiques 1r B",
+    "course": "2025-2026",
+    "teacher": "Marta Roig",
+    "school": "Institut Montserrat"
+  },
+  "students": [
+    {
+      "id": "id-a2b0f410",
+      "name": "Gina Amat"
+    },
+    {
+      "id": "id-ks190rgb",
+      "name": "Hugo Prat"
+    },
+    {
+      "id": "id-y4akv1r8",
+      "name": "Irene Salas"
+    },
+    {
+      "id": "id-hzpb6u2e",
+      "name": "Jordi Camps"
+    },
+    {
+      "id": "id-qumpsiuz",
+      "name": "Laia Font"
+    }
+  ],
+  "categories": {
+    "1": [
+      {
+        "id": "id-tz0788jz",
+        "name": "Examen 1",
+        "weight": "70",
+        "noCompute": false
+      },
+      {
+        "id": "id-66zu0j82",
+        "name": "Deures",
+        "weight": "20",
+        "noCompute": false
+      },
+      {
+        "id": "id-vu1zfxoe",
+        "name": "Actitud",
+        "weight": "10",
+        "noCompute": false
+      }
+    ],
+    "2": [],
+    "3": []
+  },
+  "grades": {
+    "1": {
+      "id-a2b0f410": {
+        "id-tz0788jz": {
+          "value": "6.5",
+          "np": false
+        },
+        "id-66zu0j82": {
+          "value": "7",
+          "np": false
+        },
+        "id-vu1zfxoe": {
+          "value": "8",
+          "np": false
+        }
+      },
+      "id-ks190rgb": {
+        "id-tz0788jz": {
+          "value": "8.8",
+          "np": false
+        },
+        "id-66zu0j82": {
+          "value": "9",
+          "np": false
+        },
+        "id-vu1zfxoe": {
+          "value": "9",
+          "np": false
+        }
+      },
+      "id-y4akv1r8": {
+        "id-tz0788jz": {
+          "value": "4.2",
+          "np": false
+        },
+        "id-66zu0j82": {
+          "value": "5",
+          "np": false
+        },
+        "id-vu1zfxoe": {
+          "value": "6",
+          "np": false
+        }
+      },
+      "id-hzpb6u2e": {
+        "id-tz0788jz": {
+          "value": "7.1",
+          "np": false
+        },
+        "id-66zu0j82": {
+          "value": "6",
+          "np": false
+        },
+        "id-vu1zfxoe": {
+          "value": "7",
+          "np": false
+        }
+      },
+      "id-qumpsiuz": {
+        "id-tz0788jz": {
+          "value": "9.4",
+          "np": false
+        },
+        "id-66zu0j82": {
+          "value": "9",
+          "np": false
+        },
+        "id-vu1zfxoe": {
+          "value": "10",
+          "np": false
+        }
+      }
+    },
+    "2": {},
+    "3": {}
+  },
+  "observations": {
+    "1": {},
+    "2": {},
+    "3": {}
+  },
+  "finalWeights": {
+    "1": 33.3,
+    "2": 33.3,
+    "3": 33.4
+  },
+  "_appVersion": "0.4",
+  "_savedAt": "2026-09-10T16:53:34.161Z"
+}
