@@ -54,7 +54,10 @@ Link a l'aplicació: https://albert-ka.github.io/Quadern-de-notes-digital/
    final pot variar quan l'acabis d'omplir.
 5. **Exportar**: des de cada trimestre pots treure un PDF; des de "Nota
    final" pots exportar el PDF de notes finals, un **resum complet** (tots
-   els trimestres en una taula), o tota la informació en un **Excel**.
+   els trimestres en una taula), o tota la informació en un **Excel**. El Excel
+   es compatible amb Google Drive i té totes les fòrmules integrades, així que es
+   pot utilitzar com a còpia de seguretat. Alternativament l'aplicació es pot
+   utilitzar per només generar els Excels.
 
 ### Exemple
 
