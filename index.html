@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadern de notes</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#2F6B57">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --ink: #1E2421;
+    --muted: #5B655F;
+    --accent: #2F6B57;
+    --accent-dark: #24543F;
+    --border: #DADFD9;
+    --surface: #FFFFFF;
+    --bg: #EFF1ED;
+    --sidebar-bg: #E6E9E4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    background: var(--sidebar-bg);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .sidebar-head { padding: 4px 8px 16px 8px; }
+  .sidebar-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.15;
+  }
+  .sidebar-course { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+  .nav-btn {
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+    width: 100%;
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-btn.active {
+    background: #FFFFFF;
+    color: var(--accent-dark);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .divider { height: 1px; background: var(--border); margin: 10px 4px; }
+  .nav-group { display: flex; flex-direction: column; gap: 4px; }
+  .recent-classes-select { margin: 0 0 0 0; font-size: 12.5px; padding: 7px 10px; border-radius: 8px; color: var(--muted); cursor: pointer; }
+  .recent-classes-reconnect { font-size: 12px; margin: 0; }
+  .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 14px; }
+  .save-indicator { font-size: 12px; text-align: center; padding: 4px 0; }
+  .save-indicator.dirty { color: #96600F; font-weight: 600; }
+  .save-indicator.ok { color: var(--muted); }
+  .file-controls { display: flex; flex-direction: column; gap: 6px; }
+  .file-controls .btn-ghost { width: 100%; justify-content: center; }
+  .sidebar-footer { font-size: 11px; color: var(--muted); text-align: center; font-family: 'Inter', sans-serif; padding: 4px 0; }
+  .sidebar-footer:hover { color: var(--accent-dark); text-decoration: underline; }
+  .main { flex: 1; padding: 28px 32px; overflow-x: auto; }
+  .h2 { font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 600; margin: 0 0 18px 0; }
+  .panel { max-width: 520px; }
+  .label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
+  .input {
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+  }
+  .btn-primary {
+    font-family: 'Inter', sans-serif;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .icon-btn { background: none; border: none; cursor: pointer; display: flex; font-size: 15px; }
+  .icon-btn.danger { color: #A6402B; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .row-flex { display: flex; gap: 8px; }
+  .student-list { display: flex; flex-direction: column; gap: 4px; }
+  .student-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .levels-info { margin-top: 28px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .levels-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .level-row { display: flex; align-items: center; gap: 8px; }
+  .badge {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 5px;
+    padding: 3px 7px;
+    display: inline-block;
+  }
+  .muted-dash { color: var(--muted); font-size: 13px; }
+  .panel-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+  .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 22px; }
+  .settings-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .cat-list { display: flex; flex-direction: column; gap: 8px; }
+  .cat-row { display: flex; gap: 8px; align-items: center; }
+  .nocompute-check { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; }
+  .nocompute-tag { font-size: 10.5px; color: var(--muted); background: #E6E9E4; border-radius: 4px; padding: 2px 6px; font-weight: 500; white-space: nowrap; }
+  .settings-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 10px; }
+  .ok-text { font-size: 12.5px; color: #2F6B57; }
+  .warn-text { font-size: 12.5px; color: #96600F; }
+  .weight-item { display: flex; align-items: center; gap: 8px; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  .data-table { border-collapse: collapse; width: 100%; min-width: 560px; }
+  .data-table th {
+    font-size: 12px; font-weight: 600; color: var(--muted); text-align: left;
+    padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  .data-table td {
+    font-size: 14px; color: var(--ink); padding: 6px 10px;
+    border-bottom: 1px solid var(--border); vertical-align: middle;
+  }
+  .sticky-col { position: sticky; left: 0; background: var(--surface); z-index: 1; }
+  .grade-cell { display: flex; align-items: center; gap: 5px; }
+  .np-label { font-size: 10.5px; color: var(--muted); display: flex; align-items: center; gap: 2px; cursor: pointer; white-space: nowrap; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .about-box { font-size: 13px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-top: 12px; line-height: 1.5; }
+  .about-box strong { color: var(--ink); }
+
+  #print-area { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    #print-area, #print-area * { visibility: visible; }
+    #print-area { position: absolute; left: 0; top: 0; width: 100%; display: block; padding: 24px; }
+    .print-title { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 600; color: #111; }
+    .print-sub { font-size: 13px; color: #444; margin-top: 2px; }
+    .print-head { margin-bottom: 18px; }
+    .print-table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; }
+    .print-table th { text-align: left; font-size: 11px; color: #333; border-bottom: 2px solid #333; padding: 6px 8px; }
+    .print-table td { font-size: 12px; color: #111; border-bottom: 1px solid #ccc; padding: 6px 8px; }
+    .print-table-wide th, .print-table-wide td { font-size: 10px; padding: 4px 5px; white-space: nowrap; }
+    .print-landscape-hint { margin-top: 12px; font-size: 11px; color: #666; font-style: italic; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="print-area"></div>
+<input type="file" id="file-input" accept="application/json,.json" style="display:none" onchange="handleFileOpen(event)">
+
+<script>
+const STORAGE_KEY = 'quadern-notes-v1';
+const LEVELS = [
+  { key: 'AE', label: 'Assoliment Excel·lent', range: '9–10', color: '#2F6B57' },
+  { key: 'AN', label: 'Assoliment Notable', range: '7–8', color: '#5D7D41' },
+  { key: 'AS', label: 'Assoliment Satisfactori', range: '5–6', color: '#96600F' },
+  { key: 'NA', label: 'No-assoliment', range: '1–4', color: '#A6402B' },
+];
+const TRIM_LABEL = { 1: '1r Trimestre', 2: '2n Trimestre', 3: '3r Trimestre' };
+const TRIM_ABBR = { 1: '1T', 2: '2T', 3: '3T' };
+const APP_VERSION = '0.5';
+
+function defaultState() {
+  return {
+    classInfo: { name: '', course: '', teacher: '', school: '' },
+    students: [],
+    categories: { 1: [], 2: [], 3: [] },
+    grades: { 1: {}, 2: {}, 3: {} },
+    observations: { 1: {}, 2: {}, 3: {} },
+    finalWeights: { 1: 33.3, 2: 33.3, 3: 33.4 },
+  };
+}
+function mergeIntoDefaults(data) {
+  const base = defaultState();
+  const merged = Object.assign({}, base, data || {});
+  merged.classInfo = Object.assign({}, base.classInfo, (data && data.classInfo) || {});
+  merged.categories = Object.assign({}, base.categories, (data && data.categories) || {});
+  merged.grades = Object.assign({}, base.grades, (data && data.grades) || {});
+  merged.observations = Object.assign({}, base.observations, (data && data.observations) || {});
+  merged.finalWeights = Object.assign({}, base.finalWeights, (data && data.finalWeights) || {});
+  return merged;
+}
+function sanitizeFilename(name) {
+  return (name || 'classe')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '') || 'classe';
+}
+
+function uid() {
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+}
+function getLevel(grade) {
+  if (grade === null || grade === undefined || isNaN(grade)) return null;
+  const r = Math.round(grade);
+  if (r >= 9) return 'AE';
+  if (r >= 7) return 'AN';
+  if (r >= 5) return 'AS';
+  return 'NA';
+}
+function levelInfo(key) { return LEVELS.find((l) => l.key === key) || null; }
+function fmt(n) { if (n === null || n === undefined || isNaN(n)) return '—'; return n.toFixed(2); }
+function esc(str) {
+  return String(str === undefined || str === null ? '' : str).replace(/[&<>"']/g, (m) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
+}
+function levelBadgeHTML(level) {
+  if (!level) return '<span class="muted-dash">—</span>';
+  const info = levelInfo(level);
+  return `<span class="badge" style="background:${info.color}">${level}</span>`;
+}
+
+let state = defaultState();
+let currentTab = 'config';
+let unsavedChanges = false;
+let lastSavedMeta = null; // { version, savedAt } of the currently open class, if known
+
+function lastSavedMetaText() {
+  if (!lastSavedMeta) return 'Aquesta classe encara no s\'ha desat en cap fitxer.';
+  const d = new Date(lastSavedMeta.savedAt);
+  const dateStr = isNaN(d) ? '' : ' · ' + d.toLocaleDateString('ca-ES') + ' ' + d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+  return `Última vegada desada amb la versió ${lastSavedMeta.version || '?'}${dateStr}.`;
+}
+function updateLastSavedMetaDisplay() {
+  const el = document.getElementById('last-saved-meta');
+  if (el) el.textContent = lastSavedMetaText();
+}
+
+function updateSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  if (unsavedChanges) {
+    el.textContent = '● Tens canvis sense desar';
+    el.className = 'save-indicator dirty';
+  } else {
+    el.textContent = '✓ Sense canvis pendents';
+    el.className = 'save-indicator ok';
+  }
+}
+function markDirty() {
+  unsavedChanges = true;
+  updateSaveIndicator();
+}
+
+function loadState() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      state = mergeIntoDefaults(data);
+    }
+  } catch (e) {
+    console.warn('No s\'ha pogut carregar les dades desades', e);
+  }
+}
+let saveTimer = null;
+function saveState() {
+  markDirty();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn('No s\'ha pogut desar', e);
+    }
+  }, 400);
+}
+
+// ---- Calculations ----
+function trimGrade(trim, studentId) {
+  const cats = (state.categories[trim] || []).filter((c) => !c.noCompute);
+  if (cats.length === 0) return null;
+  const totalWeight = cats.reduce((s, c) => s + (Number(c.weight) || 0), 0);
+  if (totalWeight === 0) return null;
+  let sum = 0, any = false;
+  cats.forEach((c) => {
+    const cell = (state.grades[trim][studentId] || {})[c.id];
+    const val = cell && cell.value !== '' && !cell.np ? (Number(cell.value) || 0) : 0;
+    if (cell && (cell.value !== '' || cell.np)) any = true;
+    sum += val * (Number(c.weight) || 0);
+  });
+  if (!any) return null;
+  return sum / totalWeight;
+}
+function finalGrade(studentId) {
+  const trims = [1, 2, 3];
+  const totalW = trims.reduce((s, t) => s + (Number(state.finalWeights[t]) || 0), 0);
+  if (totalW === 0) return null;
+  let sum = 0, any = false;
+  trims.forEach((t) => {
+    const g = trimGrade(t, studentId);
+    if (g !== null) { any = true; sum += g * (Number(state.finalWeights[t]) || 0); }
+    // if g is null (trimester not graded yet), it contributes 0 to the sum but its
+    // weight still counts in totalW below -- i.e. a missing trimester counts as a 0,
+    // same as it would in a plain spreadsheet.
+  });
+  if (!any) return null;
+  return sum / totalW;
+}
+function weightSum(trim) {
+  return (state.categories[trim] || []).filter((c) => !c.noCompute).reduce((s, c) => s + (Number(c.weight) || 0), 0);
+}
+
+// ---- Render ----
+function updateTabTitle() {
+  document.title = (state.classInfo.name ? state.classInfo.name + ' — ' : '') + 'Quadern de notes';
+}
+function render() {
+  updateTabTitle();
+  document.getElementById('app').innerHTML = `
+    <div class="shell">
+      ${sidebarHTML()}
+      <div class="main">
+        ${currentTab === 'config' ? configTabHTML()
+          : currentTab === 'students' ? studentsTabHTML()
+          : currentTab === 'final' ? finalTabHTML()
+          : currentTab === 'about' ? aboutTabHTML()
+          : trimesterTabHTML(currentTab)}
+      </div>
+    </div>`;
+}
+function switchTab(tab) { currentTab = tab; render(); }
+
+function sidebarHTML() {
+  const navItem = (id, label, icon) =>
+    `<button class="nav-btn ${currentTab === id ? 'active' : ''}" onclick="switchTab('${id}')">${icon} ${label}</button>`;
+  return `
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title" id="sidebar-title">${esc(state.classInfo.name) || 'Quadern de notes'}</div>
+      <div class="sidebar-course" id="sidebar-course" style="${state.classInfo.course ? '' : 'display:none'}">${state.classInfo.course ? 'Curs ' + esc(state.classInfo.course) : ''}</div>
+    </div>
+    <div class="nav-group">
+      ${navItem('config', 'Classe', '🎓')}
+      ${classesFolderHandle ? `
+      <select id="recent-classes-select" class="input recent-classes-select" onchange="if(this.value) openRecentClass(this.value)">
+        <option value="">Classes recents…</option>
+        ${recentClasses.map((r) => `<option value="${esc(r.name)}">${esc(r.name.replace(/\.json$/i, ''))}</option>`).join('')}
+      </select>` : pendingFolderHandle ? `
+      <button class="btn-ghost recent-classes-reconnect" onclick="reconnectClassesFolder()">🔓 Reconnecta la carpeta</button>` : ''}
+      ${navItem('students', 'Alumnes (' + state.students.length + ')', '👥')}
+      <div class="divider"></div>
+      ${navItem(1, '1r Trimestre', '📋')}
+      ${navItem(2, '2n Trimestre', '📋')}
+      ${navItem(3, '3r Trimestre', '📋')}
+      <div class="divider"></div>
+      ${navItem('final', 'Nota final', '📜')}
+    </div>
+    <div class="sidebar-bottom">
+      <div id="save-indicator" class="save-indicator ${unsavedChanges ? 'dirty' : 'ok'}">${unsavedChanges ? '● Tens canvis sense desar' : '✓ Sense canvis pendents'}</div>
+      <div class="file-controls">
+        <button class="btn-ghost" onclick="saveClassToFile()">💾 Desa la classe</button>
+        <button class="btn-ghost" onclick="openClassFromFile()">📂 Obrir una classe</button>
+        <button class="btn-ghost" onclick="openClassesFolder()">🗂️ Obrir una carpeta</button>
+        <button class="btn-ghost" onclick="newClass()">✚ Classe nova</button>
+        <button class="btn-ghost" onclick="exportExcel()" ${state.students.length === 0 ? 'disabled' : ''}>📊 Exportar a Excel</button>
+        <button class="btn-ghost" onclick="switchTab('about')">ℹ️ Informació</button>
+      </div>
+      <div class="sidebar-footer">Quadern de notes · v${APP_VERSION}</div>
+    </div>
+  </div>`;
+}
+
+function configTabHTML() {
+  return `
+  <div class="panel" style="max-width:460px">
+    <h2 class="h2">Dades de la classe</h2>
+    <label class="label">Nom de la classe</label>
+    <input class="input" style="width:100%;margin-bottom:16px" placeholder="p. ex. 3r A — Ciències Socials" value="${esc(state.classInfo.name)}" oninput="setClassField('name', this.value)">
+    <label class="label">Curs escolar</label>
+    <input class="input" style="width:100%;margin-bottom:16px" placeholder="p. ex. 2025-2026" value="${esc(state.classInfo.course)}" oninput="setClassField('course', this.value)">
+    <label class="label">Nom del professor/a</label>
+    <input class="input" style="width:100%;margin-bottom:16px" placeholder="p. ex. Albert Martí" value="${esc(state.classInfo.teacher)}" oninput="setClassField('teacher', this.value)">
+    <label class="label">Institut / escola</label>
+    <input class="input" style="width:100%" placeholder="p. ex. Institut Montserrat" value="${esc(state.classInfo.school)}" oninput="setClassField('school', this.value)">
+    <div class="hint" id="last-saved-meta" style="margin-top:14px">${lastSavedMetaText()}</div>
+    <div class="levels-info">
+      Escala de nivells (es calcula automàticament arrodonint la nota a l'enter més proper):
+      <div class="levels-list">
+        ${LEVELS.map((l) => `<div class="level-row">${levelBadgeHTML(l.key)} <span>${l.label} (${l.range})</span></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function studentsTabHTML() {
+  return `
+  <div class="panel" style="max-width:520px">
+    <h2 class="h2">Alumnes (${state.students.length})</h2>
+    <div class="row-flex" style="margin-bottom:20px">
+      <input id="new-student-input" class="input" style="flex:1" placeholder="Nom de l'alumne" onkeydown="if(event.key==='Enter'){addStudent();}">
+      <button class="btn-primary" onclick="addStudent()">➕ Afegir</button>
+    </div>
+    <div class="student-list">
+      ${state.students.length === 0
+        ? `<div class="muted">Encara no has donat d'alta cap alumne.</div>`
+        : state.students.map((st) => `
+          <div class="student-row">
+            <span>${esc(st.name)}</span>
+            <button class="icon-btn danger" onclick="removeStudent('${st.id}')" title="Eliminar alumne">🗑</button>
+          </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function trimesterTabHTML(trim) {
+  const cats = state.categories[trim] || [];
+  const wSum = weightSum(trim);
+  let html = `
+  <div class="panel-header">
+    <h2 class="h2" style="margin:0">${TRIM_LABEL[trim]}</h2>
+    <button class="btn-primary" onclick="exportPDF('trim', ${trim})" ${state.students.length === 0 ? 'disabled' : ''}>🖨 Exportar PDF</button>
+  </div>
+  <div class="settings-card">
+    <div class="settings-head">⚙️ Categories i pesos d'aquest trimestre</div>
+    <div class="cat-list">
+      ${cats.map((c) => `
+        <div class="cat-row">
+          <input class="input" style="flex:1" placeholder="Nom de la categoria (p. ex. Examen 1)" value="${esc(c.name)}" oninput="updateCategoryName(${trim},'${c.id}', this.value)">
+          ${c.noCompute
+            ? `<span class="nocompute-tag">no computa</span>`
+            : `<input class="input" type="number" style="width:72px" min="0" max="100" value="${c.weight}" oninput="updateCategoryWeight(${trim},'${c.id}', this.value)"><span class="muted">%</span>`}
+          <label class="nocompute-check" title="Es demana i es puntua, però no entra en el càlcul de la nota">
+            <input type="checkbox" ${c.noCompute ? 'checked' : ''} onchange="updateCategoryNoCompute(${trim},'${c.id}', this.checked)"> No computa
+          </label>
+          <button class="icon-btn danger" onclick="removeCategory(${trim},'${c.id}')" title="Eliminar categoria">🗑</button>
+        </div>`).join('')}
+    </div>
+    <div class="settings-foot">
+      <button class="btn-ghost" onclick="addCategory(${trim})">➕ Afegir categoria</button>
+      <span id="weightsum-${trim}" class="${wSum === 100 ? 'ok-text' : 'warn-text'}">Suma de pesos: ${wSum}% ${wSum !== 100 ? "(hauria de sumar 100%)" : ''}</span>
+    </div>
+  </div>`;
+
+  if (state.students.length === 0) {
+    html += `<div class="muted">Dona d'alta alumnes a la pestanya "Alumnes" per començar a posar notes.</div>`;
+  } else if (cats.length === 0) {
+    html += `<div class="muted">Afegeix com a mínim una categoria per poder introduir notes.</div>`;
+  } else {
+    html += `<div class="table-wrap"><table class="data-table"><thead><tr>
+      <th class="sticky-col">Alumne</th>
+      ${cats.map((c) => `<th id="catheader-${trim}-${c.id}">${esc(c.name) || '(sense nom)'}${c.noCompute ? ' <span class="nocompute-tag">no computa</span>' : ''}</th>`).join('')}
+      <th>Nota</th><th>Nivell</th><th>Observacions</th>
+    </tr></thead><tbody>`;
+    state.students.forEach((st) => {
+      const grade = trimGrade(trim, st.id);
+      html += `<tr>
+        <td class="sticky-col" style="font-weight:500">${esc(st.name)}</td>
+        ${cats.map((c) => {
+          const cell = (state.grades[trim][st.id] || {})[c.id] || { value: '', np: false };
+          return `<td>
+            <div class="grade-cell">
+              <input type="number" step="0.01" min="0" max="10" ${cell.np ? 'disabled' : ''} value="${cell.value !== undefined ? cell.value : ''}" style="width:58px;${cell.np ? 'opacity:0.4' : ''}" oninput="setGradeValue(${trim},'${st.id}','${c.id}', this.value)">
+              <label class="np-label" title="No presenta">
+                <input type="checkbox" ${cell.np ? 'checked' : ''} onchange="setGradeNP(${trim},'${st.id}','${c.id}', this.checked)"> NP
+              </label>
+            </div>
+          </td>`;
+        }).join('')}
+        <td id="gradeval-${trim}-${st.id}" style="font-weight:700">${fmt(grade)}</td>
+        <td id="levelbadge-${trim}-${st.id}">${levelBadgeHTML(getLevel(grade))}</td>
+        <td><input class="input" style="width:150px" placeholder="—" value="${esc(state.observations[trim][st.id] || '')}" oninput="setObservation(${trim},'${st.id}', this.value)"></td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>
+    <div class="hint">Marcar "NP" compta la casella com un 0 en el càlcul de la nota.</div>`;
+  }
+  return html;
+}
+
+function finalTabHTML() {
+  const totalW = [1, 2, 3].reduce((s, t) => s + (Number(state.finalWeights[t]) || 0), 0);
+  let html = `
+  <div class="panel-header">
+    <h2 class="h2" style="margin:0">Nota final de curs</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-ghost" onclick="exportPDF('overview')" ${state.students.length === 0 ? 'disabled' : ''}>📄 Exportar resum complet</button>
+      <button class="btn-primary" onclick="exportPDF('final')" ${state.students.length === 0 ? 'disabled' : ''}>🖨 Exportar PDF</button>
+    </div>
+  </div>
+  <div class="settings-card row-flex" style="flex-wrap:wrap;gap:20px;align-items:center">
+    ${[1, 2, 3].map((t) => `
+      <div class="weight-item">
+        <span class="muted">${TRIM_LABEL[t]}</span>
+        <input class="input" type="number" min="0" max="100" style="width:64px" value="${state.finalWeights[t]}" oninput="setFinalWeight(${t}, this.value)">
+        <span class="muted">%</span>
+      </div>`).join('')}
+    <span id="finalweightsum" class="${totalW === 100 ? 'ok-text' : 'warn-text'}" style="margin-left:auto">Suma: ${totalW}% ${totalW !== 100 ? "(hauria de sumar 100%)" : ''}</span>
+  </div>`;
+
+  if (state.students.length === 0) {
+    html += `<div class="muted">Dona d'alta alumnes per veure la nota final.</div>`;
+  } else {
+    html += `<div class="table-wrap"><table class="data-table"><thead><tr>
+      <th>Alumne</th><th>1r trim.</th><th>2n trim.</th><th>3r trim.</th><th>Nota final</th><th>Nivell</th>
+    </tr></thead><tbody>`;
+    state.students.forEach((st) => {
+      const g1 = trimGrade(1, st.id), g2 = trimGrade(2, st.id), g3 = trimGrade(3, st.id), gf = finalGrade(st.id);
+      html += `<tr>
+        <td style="font-weight:500">${esc(st.name)}</td>
+        <td>${fmt(g1)}</td><td>${fmt(g2)}</td><td>${fmt(g3)}</td>
+        <td id="finalgrade-${st.id}" style="font-weight:700">${fmt(gf)}</td>
+        <td id="finallevel-${st.id}">${levelBadgeHTML(getLevel(gf))}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>
+    <div class="hint">Si un trimestre encara no té cap nota introduïda, compta com un 0 en la nota final (igual que en un full de càlcul normal) — la nota final pot variar quan afegeixis les notes que falten.</div>`;
+  }
+  return html;
+}
+
+function aboutTabHTML() {
+  return `
+  <div class="panel" style="max-width:460px">
+    <h2 class="h2">Informació</h2>
+    <p style="font-size:14px;color:var(--ink);line-height:1.6">Quadern de notes — versió ${APP_VERSION}<br>Eina senzilla per calcular i exportar notes de classe per trimestre.</p>
+    <div class="about-box">
+      <strong>Avís:</strong> aquesta aplicació es proporciona "tal com és", sense cap garantia. Pot contenir errors de càlcul o de programació — revisa sempre les notes abans de publicar-les oficialment.
+    </div>
+    <div class="about-box">
+      <strong>Llicència:</strong> lliure d'ús, còpia, modificació i distribució (llicència MIT).
+    </div>
+  </div>`;
+}
+
+// ---- Actions ----
+function addStudent() {
+  const input = document.getElementById('new-student-input');
+  const name = (input.value || '').trim();
+  if (!name) return;
+  state.students.push({ id: uid(), name });
+  saveState();
+  render();
+  const ni = document.getElementById('new-student-input');
+  if (ni) ni.focus();
+}
+function removeStudent(id) {
+  const st = state.students.find((s) => s.id === id);
+  const name = st ? st.name : 'aquest alumne';
+  const ok = confirm(`Vols eliminar ${name}? Es perdran totes les seves notes i observacions.`);
+  if (!ok) return;
+  state.students = state.students.filter((s) => s.id !== id);
+  saveState();
+  render();
+}
+function addCategory(trim) {
+  state.categories[trim].push({ id: uid(), name: '', weight: 10, noCompute: false });
+  saveState();
+  render();
+}
+function removeCategory(trim, catId) {
+  state.categories[trim] = state.categories[trim].filter((c) => c.id !== catId);
+  Object.values(state.grades[trim]).forEach((sg) => { delete sg[catId]; });
+  saveState();
+  render();
+}
+function updateCategoryName(trim, catId, value) {
+  const cat = state.categories[trim].find((c) => c.id === catId);
+  if (!cat) return;
+  cat.name = value;
+  saveState();
+  const header = document.getElementById(`catheader-${trim}-${catId}`);
+  if (header) header.innerHTML = (esc(value) || '(sense nom)') + (cat.noCompute ? ' <span class="nocompute-tag">no computa</span>' : '');
+}
+function updateCategoryNoCompute(trim, catId, checked) {
+  const cat = state.categories[trim].find((c) => c.id === catId);
+  if (!cat) return;
+  cat.noCompute = checked;
+  saveState();
+  render();
+}
+function updateCategoryWeight(trim, catId, value) {
+  const cat = state.categories[trim].find((c) => c.id === catId);
+  if (!cat) return;
+  cat.weight = value;
+  saveState();
+  updateWeightSumDisplay(trim);
+  recalcTrimDisplays(trim);
+}
+function updateWeightSumDisplay(trim) {
+  const el = document.getElementById(`weightsum-${trim}`);
+  if (!el) return;
+  const wSum = weightSum(trim);
+  el.textContent = `Suma de pesos: ${wSum}% ${wSum !== 100 ? "(hauria de sumar 100%)" : ''}`;
+  el.className = wSum === 100 ? 'ok-text' : 'warn-text';
+}
+function recalcTrimDisplays(trim) {
+  state.students.forEach((st) => {
+    const g = trimGrade(trim, st.id);
+    const gEl = document.getElementById(`gradeval-${trim}-${st.id}`);
+    if (gEl) gEl.textContent = fmt(g);
+    const lEl = document.getElementById(`levelbadge-${trim}-${st.id}`);
+    if (lEl) lEl.innerHTML = levelBadgeHTML(getLevel(g));
+  });
+}
+function setGradeValue(trim, studentId, catId, value) {
+  if (!state.grades[trim][studentId]) state.grades[trim][studentId] = {};
+  if (!state.grades[trim][studentId][catId]) state.grades[trim][studentId][catId] = { value: '', np: false };
+  state.grades[trim][studentId][catId].value = value;
+  saveState();
+  const g = trimGrade(trim, studentId);
+  const gEl = document.getElementById(`gradeval-${trim}-${studentId}`);
+  if (gEl) gEl.textContent = fmt(g);
+  const lEl = document.getElementById(`levelbadge-${trim}-${studentId}`);
+  if (lEl) lEl.innerHTML = levelBadgeHTML(getLevel(g));
+}
+function setGradeNP(trim, studentId, catId, checked) {
+  if (!state.grades[trim][studentId]) state.grades[trim][studentId] = {};
+  if (!state.grades[trim][studentId][catId]) state.grades[trim][studentId][catId] = { value: '', np: false };
+  state.grades[trim][studentId][catId].np = checked;
+  saveState();
+  render();
+}
+function setObservation(trim, studentId, value) {
+  if (!state.observations[trim]) state.observations[trim] = {};
+  state.observations[trim][studentId] = value;
+  saveState();
+}
+function setFinalWeight(trim, value) {
+  state.finalWeights[trim] = value;
+  saveState();
+  const totalW = [1, 2, 3].reduce((s, t) => s + (Number(state.finalWeights[t]) || 0), 0);
+  const sumEl = document.getElementById('finalweightsum');
+  if (sumEl) {
+    sumEl.textContent = `Suma: ${totalW}% ${totalW !== 100 ? "(hauria de sumar 100%)" : ''}`;
+    sumEl.className = totalW === 100 ? 'ok-text' : 'warn-text';
+  }
+  state.students.forEach((st) => {
+    const gf = finalGrade(st.id);
+    const gEl = document.getElementById(`finalgrade-${st.id}`);
+    if (gEl) gEl.textContent = fmt(gf);
+    const lEl = document.getElementById(`finallevel-${st.id}`);
+    if (lEl) lEl.innerHTML = levelBadgeHTML(getLevel(gf));
+  });
+}
+function setClassField(field, value) {
+  state.classInfo[field] = value;
+  saveState();
+  if (field === 'name') {
+    const t = document.getElementById('sidebar-title');
+    if (t) t.textContent = value || 'Quadern de notes';
+    updateTabTitle();
+  } else if (field === 'course') {
+    const c = document.getElementById('sidebar-course');
+    if (c) { c.textContent = value ? `Curs ${value}` : ''; c.style.display = value ? 'block' : 'none'; }
+  }
+}
+
+// ---- Fitxers de classe (desar / obrir / carpeta / nova) ----
+let currentFileHandle = null;    // handle del fitxer de la classe oberta (permet sobreescriure)
+let classesFolderHandle = null;  // handle de la carpeta de classes triada (per a "classes recents")
+let pendingFolderHandle = null;  // handle recuperat d'IndexedDB que encara necessita confirmació de permís
+let recentClasses = [];          // [{ name, handle }] llistats de la carpeta, ordenats per data
+
+function supportsFSA() {
+  return typeof window.showOpenFilePicker === 'function'
+    && typeof window.showSaveFilePicker === 'function'
+    && typeof window.showDirectoryPicker === 'function';
+}
+
+// ---- IndexedDB: petit magatzem per recordar la carpeta de classes entre sessions ----
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('quadern-notes-db', 1);
+    req.onupgradeneeded = () => { req.result.createObjectStore('handles'); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbSet(key, value) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('handles', 'readwrite');
+    tx.objectStore('handles').put(value, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function idbGet(key) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('handles', 'readonly');
+    const req = tx.objectStore('handles').get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function applyLoadedClassJson(jsonText) {
+  const data = JSON.parse(jsonText);
+  const { _appVersion, _savedAt, ...rest } = data;
+  state = mergeIntoDefaults(rest);
+  lastSavedMeta = _appVersion ? { version: _appVersion, savedAt: _savedAt } : null;
+  saveState();
+  unsavedChanges = false;
+  currentTab = 'config';
+  render();
+}
+
+function downloadFileClassic(jsonString, filename) {
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function finishSaveBookkeeping(savedAt) {
+  unsavedChanges = false;
+  lastSavedMeta = { version: APP_VERSION, savedAt };
+  updateSaveIndicator();
+  updateLastSavedMetaDisplay();
+}
+
+async function ensureFolderPermission() {
+  if (!classesFolderHandle) return false;
+  let perm = await classesFolderHandle.queryPermission({ mode: 'readwrite' });
+  if (perm !== 'granted') perm = await classesFolderHandle.requestPermission({ mode: 'readwrite' });
+  return perm === 'granted';
+}
+
+async function saveClassToFile() {
+  const savedAt = new Date().toISOString();
+  const exportData = Object.assign({}, state, { _appVersion: APP_VERSION, _savedAt: savedAt });
+  const jsonString = JSON.stringify(exportData, null, 2);
+  const filename = sanitizeFilename(state.classInfo.name) + '-notes.json';
+
+  try {
+    if (currentFileHandle) {
+      // ja tenim un fitxer obert/desat -> sobreescriu-lo directament
+      const writable = await currentFileHandle.createWritable();
+      await writable.write(jsonString);
+      await writable.close();
+    } else if (classesFolderHandle && (await ensureFolderPermission())) {
+      // primer desat d'aquesta classe, però amb una carpeta de classes oberta -> desa-la allà
+      const handle = await classesFolderHandle.getFileHandle(filename, { create: true });
+      const writable = await handle.createWritable();
+      await writable.write(jsonString);
+      await writable.close();
+      currentFileHandle = handle;
+      await refreshRecentClasses();
+    } else if (supportsFSA()) {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{ description: 'Quadern de notes', accept: { 'application/json': ['.json'] } }],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(jsonString);
+      await writable.close();
+      currentFileHandle = handle;
+    } else {
+      throw new Error('fsa-not-supported');
+    }
+    finishSaveBookkeeping(savedAt);
+  } catch (e) {
+    if (e && e.name === 'AbortError') return; // l'usuari ha cancel·lat el diàleg
+    downloadFileClassic(jsonString, filename); // reserva: mètode de baixada clàssic
+    finishSaveBookkeeping(savedAt);
+  }
+}
+
+async function openClassFromFile() {
+  if (supportsFSA()) {
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        types: [{ description: 'Quadern de notes', accept: { 'application/json': ['.json'] } }],
+        multiple: false,
+      });
+      const file = await handle.getFile();
+      const text = await file.text();
+      applyLoadedClassJson(text);
+      currentFileHandle = handle;
+      return;
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      // si falla per algun motiu inesperat, cau al mètode clàssic
+    }
+  }
+  document.getElementById('file-input').click();
+}
+function handleFileOpen(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      applyLoadedClassJson(e.target.result);
+      currentFileHandle = null; // obert amb el selector clàssic: no hi ha handle per sobreescriure
+    } catch (err) {
+      alert('Aquest fitxer no és un quadern de notes vàlid.');
+    }
+  };
+  reader.onerror = () => alert('No s\'ha pogut llegir el fitxer.');
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+async function openClassesFolder() {
+  if (!supportsFSA()) {
+    alert('El teu navegador no permet obrir carpetes directament. Fes servir "Obrir una classe" per triar un fitxer solt.');
+    return;
+  }
+  try {
+    const handle = await window.showDirectoryPicker();
+    classesFolderHandle = handle;
+    pendingFolderHandle = null;
+    try { await idbSet('classesFolderHandle', handle); } catch (e) { /* no crític si falla */ }
+    await refreshRecentClasses();
+    render();
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    alert('No s\'ha pogut obrir la carpeta.');
+  }
+}
+async function reconnectClassesFolder() {
+  if (!pendingFolderHandle) return;
+  try {
+    const perm = await pendingFolderHandle.requestPermission({ mode: 'readwrite' });
+    if (perm === 'granted') {
+      classesFolderHandle = pendingFolderHandle;
+      pendingFolderHandle = null;
+      await refreshRecentClasses();
+      render();
+    }
+  } catch (e) { /* ignorem: l'usuari pot tornar-ho a provar */ }
+}
+async function refreshRecentClasses() {
+  if (!classesFolderHandle) { recentClasses = []; return; }
+  const ok = await ensureFolderPermission();
+  if (!ok) { recentClasses = []; return; }
+  const items = [];
+  for await (const entry of classesFolderHandle.values()) {
+    if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.json')) {
+      try {
+        const file = await entry.getFile();
+        items.push({ name: entry.name, handle: entry, lastModified: file.lastModified });
+      } catch (e) { /* ignora fitxers il·legibles */ }
+    }
+  }
+  items.sort((a, b) => b.lastModified - a.lastModified);
+  recentClasses = items.slice(0, 20);
+  updateRecentClassesDropdown();
+}
+function updateRecentClassesDropdown() {
+  const sel = document.getElementById('recent-classes-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Selecciona una classe —</option>'
+    + recentClasses.map((r) => `<option value="${esc(r.name)}">${esc(r.name.replace(/\.json$/i, ''))}</option>`).join('');
+}
+async function openRecentClass(filename) {
+  const entry = recentClasses.find((r) => r.name === filename);
+  if (!entry) return;
+  try {
+    const file = await entry.handle.getFile();
+    const text = await file.text();
+    applyLoadedClassJson(text);
+    currentFileHandle = entry.handle;
+  } catch (e) {
+    alert('No s\'ha pogut obrir aquesta classe.');
+  }
+}
+
+function newClass() {
+  if (state.students.length > 0 || state.classInfo.name) {
+    const ok = confirm('Vols crear una classe nova? Si no has desat la classe actual en un fitxer (💾 Desa la classe), es perdran els canvis no desats.');
+    if (!ok) return;
+  }
+  state = defaultState();
+  saveState();
+  unsavedChanges = false;
+  lastSavedMeta = null;
+  currentFileHandle = null;
+  currentTab = 'config';
+  render();
+}
+
+// ---- Exportació a Excel ----
+function excelInfoRows() {
+  const rows = [['Classe', state.classInfo.name || ''], ['Curs', state.classInfo.course || '']];
+  if (state.classInfo.teacher) rows.push(['Professor/a', state.classInfo.teacher]);
+  if (state.classInfo.school) rows.push(['Centre', state.classInfo.school]);
+  rows.push([]);
+  return rows;
+}
+function buildTrimSheetData(trim) {
+  const cats = state.categories[trim] || [];
+  const rows = excelInfoRows();
+  const header = ['Alumne', ...cats.map((c) => c.name + (c.noCompute ? ' (no computa)' : ` (${c.weight}%)`)), 'Nota', 'Nivell', 'Observacions'];
+  rows.push(header);
+  state.students.forEach((st) => {
+    const g = trimGrade(trim, st.id);
+    const catVals = cats.map((c) => {
+      const cell = (state.grades[trim][st.id] || {})[c.id];
+      if (cell && cell.np) return 'NP';
+      if (cell && cell.value !== '' && cell.value !== undefined) return Number(cell.value);
+      return '';
+    });
+    rows.push([st.name, ...catVals, g === null ? '' : Number(g.toFixed(2)), getLevel(g) || '', state.observations[trim][st.id] || '']);
+  });
+  return rows;
+}
+function buildFinalSheetData() {
+  const rows = excelInfoRows();
+  rows.push(['Alumne', `1r trim. (${state.finalWeights[1]}%)`, `2n trim. (${state.finalWeights[2]}%)`, `3r trim. (${state.finalWeights[3]}%)`, 'Nota final', 'Nivell']);
+  state.students.forEach((st) => {
+    const g1 = trimGrade(1, st.id), g2 = trimGrade(2, st.id), g3 = trimGrade(3, st.id), gf = finalGrade(st.id);
+    rows.push([
+      st.name,
+      g1 === null ? '' : Number(g1.toFixed(2)),
+      g2 === null ? '' : Number(g2.toFixed(2)),
+      g3 === null ? '' : Number(g3.toFixed(2)),
+      gf === null ? '' : Number(gf.toFixed(2)),
+      getLevel(gf) || '',
+    ]);
+  });
+  return rows;
+}
+function exportExcel() {
+  if (typeof XLSX === 'undefined') {
+    alert('No s\'ha pogut carregar la llibreria d\'Excel (cal connexió a internet la primera vegada que obres l\'aplicació). Torna-ho a provar amb connexió.');
+    return;
+  }
+  const wb = XLSX.utils.book_new();
+  [1, 2, 3].forEach((t) => {
+    const ws = XLSX.utils.aoa_to_sheet(buildTrimSheetData(t));
+    XLSX.utils.book_append_sheet(wb, ws, TRIM_LABEL[t]);
+  });
+  const wsFinal = XLSX.utils.aoa_to_sheet(buildFinalSheetData());
+  XLSX.utils.book_append_sheet(wb, wsFinal, 'Nota Final');
+  XLSX.writeFile(wb, sanitizeFilename(state.classInfo.name) + '-notes.xlsx');
+}
+
+// ---- PDF export (via browser print) ----
+function printHeaderHTML(subtitle, today) {
+  return `<div class="print-head">
+    <div class="print-title">${esc(state.classInfo.name) || 'Classe sense nom'}</div>
+    <div class="print-sub">${state.classInfo.course ? 'Curs ' + esc(state.classInfo.course) + ' · ' : ''}${esc(subtitle)} · Generat el ${today}</div>
+    ${(state.classInfo.teacher || state.classInfo.school) ? `<div class="print-sub" style="margin-top:2px">${state.classInfo.teacher ? esc(state.classInfo.teacher) : ''}${state.classInfo.teacher && state.classInfo.school ? ' · ' : ''}${state.classInfo.school ? esc(state.classInfo.school) : ''}</div>` : ''}
+  </div>`;
+}
+function exportPDF(type, trim) {
+  const today = new Date().toLocaleDateString('ca-ES');
+  let html = '';
+  if (type === 'trim') {
+    const cats = state.categories[trim] || [];
+    html += printHeaderHTML(TRIM_LABEL[trim], today);
+    html += '<table class="print-table"><thead><tr><th>Alumne</th>';
+    cats.forEach((c) => { html += `<th>${esc(c.name) || '(sense nom)'} ${c.noCompute ? '(no computa)' : '(' + c.weight + '%)'}</th>`; });
+    html += '<th>Nota</th><th>Nivell</th><th>Observacions</th></tr></thead><tbody>';
+    state.students.forEach((st) => {
+      const g = trimGrade(trim, st.id);
+      html += `<tr><td>${esc(st.name)}</td>`;
+      cats.forEach((c) => {
+        const cell = (state.grades[trim][st.id] || {})[c.id];
+        const disp = cell && cell.np ? 'NP' : (cell && cell.value !== '' && cell.value !== undefined ? cell.value : '—');
+        html += `<td>${esc(disp)}</td>`;
+      });
+      html += `<td><strong>${fmt(g)}</strong></td><td>${getLevel(g) || '—'}</td><td>${esc(state.observations[trim][st.id] || '')}</td></tr>`;
+    });
+    html += '</tbody></table>';
+  } else if (type === 'final') {
+    html += printHeaderHTML('Notes finals de curs', today);
+    html += `<table class="print-table"><thead><tr><th>Alumne</th><th>1r trim. (${state.finalWeights[1]}%)</th><th>2n trim. (${state.finalWeights[2]}%)</th><th>3r trim. (${state.finalWeights[3]}%)</th><th>Nota final</th><th>Nivell</th></tr></thead><tbody>`;
+    state.students.forEach((st) => {
+      const g1 = trimGrade(1, st.id), g2 = trimGrade(2, st.id), g3 = trimGrade(3, st.id), gf = finalGrade(st.id);
+      html += `<tr><td>${esc(st.name)}</td><td>${fmt(g1)}</td><td>${fmt(g2)}</td><td>${fmt(g3)}</td><td><strong>${fmt(gf)}</strong></td><td>${getLevel(gf) || '—'}</td></tr>`;
+    });
+    html += '</tbody></table>';
+  } else if (type === 'overview') {
+    html += printHeaderHTML('Resum complet del curs', today);
+    const catsByTrim = { 1: state.categories[1] || [], 2: state.categories[2] || [], 3: state.categories[3] || [] };
+    html += '<table class="print-table print-table-wide"><thead><tr><th>Alumne</th>';
+    [1, 2, 3].forEach((t) => {
+      catsByTrim[t].forEach((c) => { html += `<th>${TRIM_ABBR[t]}: ${esc(c.name) || '(sense nom)'}${c.noCompute ? ' (no computa)' : ''}</th>`; });
+      html += `<th>Nota ${TRIM_ABBR[t]}</th><th>Nivell ${TRIM_ABBR[t]}</th>`;
+    });
+    html += '<th>Nota final</th><th>Nivell final</th></tr></thead><tbody>';
+    state.students.forEach((st) => {
+      html += `<tr><td>${esc(st.name)}</td>`;
+      [1, 2, 3].forEach((t) => {
+        catsByTrim[t].forEach((c) => {
+          const cell = (state.grades[t][st.id] || {})[c.id];
+          const disp = cell && cell.np ? 'NP' : (cell && cell.value !== '' && cell.value !== undefined ? cell.value : '—');
+          html += `<td>${esc(disp)}</td>`;
+        });
+        const g = trimGrade(t, st.id);
+        html += `<td><strong>${fmt(g)}</strong></td><td>${getLevel(g) || '—'}</td>`;
+      });
+      const gf2 = finalGrade(st.id);
+      html += `<td><strong>${fmt(gf2)}</strong></td><td>${getLevel(gf2) || '—'}</td></tr>`;
+    });
+    html += '</tbody></table><div class="print-landscape-hint">Consell: si la taula no cap a l\'ample del full, tria orientació "Horitzontal" al diàleg d\'impressió.</div>';
+  }
+  document.getElementById('print-area').innerHTML = html;
+  setTimeout(() => window.print(), 50);
+}
+
+// ---- Init ----
+loadState();
+render();
+window.addEventListener('beforeunload', function (e) {
+  if (unsavedChanges) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+(async () => {
+  try {
+    const savedHandle = await idbGet('classesFolderHandle');
+    if (savedHandle) {
+      const perm = await savedHandle.queryPermission({ mode: 'readwrite' });
+      if (perm === 'granted') {
+        classesFolderHandle = savedHandle;
+        await refreshRecentClasses();
+        render();
+      } else {
+        pendingFolderHandle = savedHandle;
+        render();
+      }
+    }
+  } catch (e) { /* IndexedDB no disponible o buida: cap problema, es continua sense carpeta */ }
+})();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* no crític si falla */ });
+  });
+}
+</script>
+</body>
+</html>
